@@ -22,6 +22,9 @@
 *.x86_64
 *.hex
 
-#Vagrant
+# Vagrant
 Vagrantfile
 .vagrant
+
+# Xcode
+Threadpool

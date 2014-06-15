@@ -8,17 +8,19 @@
 
 typedef struct pool_task pool_task;
 
+const int POOL_DEADLINE = 100;
+
 struct pool_task {
     void* (*function)(void *);
     void* args;
-    // Here goes the timer for the deadline.
-    pool_task* prev;
+    int deadline;
     pool_task* next;
 };
 
 typedef struct pool_t {
     pthread_t *threads;
     pthread_mutex_t lock;
+    pthread_mutex_t stop;
     pool_task *head;
     pool_task *tail;
 } pool_t;
