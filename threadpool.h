@@ -18,6 +18,7 @@ struct pool_task {
 
 typedef struct pool_t {
     pthread_t *threads;
+    pthread_mutex_t lock;
     pool_task *head;
     pool_task *tail;
 } pool_t;

@@ -5,7 +5,7 @@ DEBUG = -g
 
 all:
 	$(CC) $(VERSION) threadpool.c -o threadpool-bin $(LIBS)
-	./threadpool-bin
+
 debug:
 	$(CC) $(VERSION) $(DEBUG) threadpool.c $(LIBS)
 	gdb a.out
