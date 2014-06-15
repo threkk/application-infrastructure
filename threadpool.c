@@ -1,48 +1,76 @@
 #include "threadpool.h"
 
-void pool_manager(pool_t* pool)
-{
 
+void pool_launcher(pool_t *pool)
+{
+    printf("Executing launcher\n");
+ 
+    // Pick tasks from the queue
+    // TODO: Update the queue.
+    while (1) {
+        if (pool->head != NULL) {
+            (*(pool->head->function))(pool->head->args);
+        }
+    }
+    pthread_exit(NULL);
 }
 
-int pool_init(pool_t *pool)
+
+
+pool_t* pool_init()
 {
-    pool->max_threads = sysconf(_SC_NPROCESSORS_ONLN);
-    pool->head = 0;
-    pool->tail = 0;
-    pool->threads = (pthread_t *)malloc(sizeof(pthread_t) * pool->max_threads);
+    pool_t* pool;
+    pool = (pool_t *)malloc(sizeof(pool_t));
+    pool->head = NULL;
+    pool->tail = NULL;
+    
+    int max_threads =  1 + 2 * 1; //(int)sysconf(_SC_NPROCESSORS_ONLN);
+    pool->threads = (pthread_t *)malloc(sizeof(pthread_t) * max_threads);
 
-    // More things to do.
 
-    return 0;
+    for(int i = 0; i < max_threads; i++)
+    {
+        int rc = pthread_create(&pool->threads[i], NULL, &pool_launcher, (void *)pool);
+        if (rc)
+        {
+            printf("Error creating the pool launcher.\n");
+        }
+        
+    }
+    
+    printf("Pool_init executed\n");
+    return pool; //Future error handling
 }
 
 int pool_add_task(pool_t *pool, void* (*function)(void *), void* args)
 {
     pool_task *task;
+    task = (pool_task *)malloc(sizeof(pool_task));
     task->function = function;
     task->args = args;
 
     // Update the queue of tasks.
-    if(pool->tail == 0)
-    {
-        pool->tail = task;
+    task->prev = NULL;
+    task->next = NULL;
+    
+    if (pool->head == NULL) {
+        pool->head = task;
     }
-
-    if(pool->head != 0)
+    
+    if(pool->tail != NULL)
     {
-        task->next = pool->head;
-        pool->head->prev = task;
+        task->prev = pool->head;
+        pool->tail->next = task;
     }
-
-    task->prev = 0;
-    pool->head = task;
+    pool->tail = task;
+    
+    printf("Task added to the queue\n");
     return 0;
 }
 
-int sum(int a, int b)
+int sum2(int a)
 {
-    return a + b;
+    return a + 2;
 }
 
 void simple()
@@ -52,5 +80,12 @@ void simple()
 
 int main ()
 {
+    pool_t* pool;
+    pool = pool_init();
+    pool_add_task(pool, &simple, NULL);
+    pool_add_task(pool, &sum2, 4);
+    pool_add_task(pool, &simple, NULL);
+    //(*(pool->head->function))(pool->head->args);
+    while(1);
     return 0; 
 }
