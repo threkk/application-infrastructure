@@ -8,8 +8,6 @@
 
 typedef struct pool_task pool_task;
 
-const int POOL_DEADLINE = 100;
-
 struct pool_task {
     void* (*function)(void *);
     void* args;
@@ -21,9 +19,12 @@ typedef struct pool_t {
     pthread_t *threads;
     pthread_mutex_t lock;
     pthread_mutex_t stop;
+    int alive;
+    int deadline;
     pool_task *head;
     pool_task *tail;
 } pool_t;
 
-pool_t* pool_init();
-int pool_add_task(pool_t *pool, void* (*function)(void *), void* args);
+pool_t* pool_init(int deadline);
+void pool_add_task(pool_t *pool, void* (*function)(void *), void* args);
+void pool_destroy(pool_t *pool);

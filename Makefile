@@ -1,14 +1,15 @@
 CC = gcc
 LIBS = -lpthread
 VERSION = -std=c99
-DEBUG = -g
+OPTIONS = -w -O2
 
-all:
-	$(CC) $(VERSION) threadpool.c -o threadpool-bin $(LIBS)
-
-debug:
-	$(CC) $(VERSION) $(DEBUG) threadpool.c $(LIBS)
-	gdb a.out
+all: clean
+	$(CC) $(VERSION) $(OPTIONS) -c threadpool.c -o threadpool.o $(LIBS)
+	ar rcs libthreadpool.a threadpool.o
+test:all
+	$(CC) $(VERSION) $(OPTIONS) -static test.c -L. -lthreadpool $(LIBS) -o test
 
 clean:
-	rm -f threadpool-bin a.out
+	rm -f *.o
+	rm -f test
+	rm -f libthreadpool.a
